@@ -1,10 +1,21 @@
 import torch
 import torch.nn as nn
+from torchvision import models
 
 class FeatureExtractor(nn.Module):
-    def __init__(self, model):
+    def __init__(self, model_name, pretrained=True):
         super(FeatureExtractor, self).__init__()
-        # 마지막 fc 레이어를 제외한 모든 레이어를 가져옵니다.
+        if model_name == 'resnet18':
+            model = models.resnet18(pretrained=pretrained)
+        elif model_name == 'vgg16':
+            model = models.vgg16(pretrained=pretrained)
+        elif model_name == 'vgg19':
+            model = models.vgg19(pretrained=pretrained)
+        elif model_name == 'alexnet':
+            model = models.alexnet(pretrained=pretrained)
+        else:
+            raise ValueError("Invalid model name. Supported models are 'resnet18', 'vgg16', 'vgg19', and 'alexnet'.")
+
         self.features = nn.Sequential(*list(model.children())[:-1])
 
     def forward(self, x):
@@ -13,7 +24,6 @@ class FeatureExtractor(nn.Module):
         return x
 
 
-    
 class Autoencoder(nn.Module):
     def __init__(self, input_dim, encoding_dim):
         super(Autoencoder, self).__init__()
